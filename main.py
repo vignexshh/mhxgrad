@@ -58,6 +58,7 @@ def get_distinct_values(collection_name, field, query=None, timeout=600):
         return []
 
 def get_available_fields(collection_name):
+    
     client = get_mongo_client(MONGO_URI)
     db = get_database(client, DATABASE_NAME)
     collection = get_collection(db, collection_name)
