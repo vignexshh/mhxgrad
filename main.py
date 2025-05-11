@@ -3,11 +3,29 @@ import pandas as pd
 import pymongo
 from functools import lru_cache
 import gradio as gr
+import os
+from dotenv import load_dotenv
+import logging
+# from livereload import Server #for auto  refresh debug
+
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+# Load environment variables from .env file
+load_dotenv()
 
 # --- Configuration ---
-MONGO_URI = ""
-DATABASE_NAME = "MHneetData2024"
-COLLECTION_NAME = "neetData2024"
+MONGO_URI = os.getenv("MONGO_URI")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME")
+if not MONGO_URI:
+    logging.error("Environment variable MONGO_URI is not set.")
+
+if not DATABASE_NAME:
+    logging.error("Environment variable DATABASE_NAME is not set.")
+
+if not COLLECTION_NAME:
+    logging.error("Environment variable COLLECTION_NAM (typo?) is not set.")
 DEFAULT_IGNORED_FIELDS = {'_id', 'internal_metadata', 'audit_trail'}
 
 # --- MongoDB Helpers ---
@@ -89,7 +107,7 @@ def create_interface():
     categories = [""] + get_distinct_values(COLLECTION_NAME, 'listCategory')
     available_fields = list(get_available_fields(COLLECTION_NAME))
 
-    with gr.Blocks(css="footer{display:none !important}",title="MedicalHunt Neet Data Explorer 2024") as demo:
+    with gr.Blocks(css="footer{display:none !important}",title="MedicalHunt Neet Data Explorer 2024 less death") as demo:
         gr.Markdown("## MedicalHunt NEET Data Explorer 2024")
         with gr.Row():
             category = gr.Dropdown(choices=categories, label="Select Category")
@@ -116,5 +134,7 @@ def create_interface():
 
 # --- Run ---
 if __name__ == "__main__":
+    
     app = create_interface()
     app.launch()
+    
