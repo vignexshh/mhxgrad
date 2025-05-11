@@ -107,16 +107,16 @@ def create_interface():
     categories = [""] + get_distinct_values(COLLECTION_NAME, 'listCategory')
     available_fields = list(get_available_fields(COLLECTION_NAME))
 
-    with gr.Blocks(css="footer{display:none !important}",title="MedicalHunt Neet Data Explorer 2024 less death") as demo:
-        gr.Markdown("## MedicalHunt NEET Data Explorer 2024")
+    with gr.Blocks(css="footer{display:none !important}",title="MedicalHunt Neet Data Explorer 2024 ") as demo:
+        gr.Markdown("## MedicalHunt NEET Data Explorer 2024 death ")
         with gr.Row():
             category = gr.Dropdown(choices=categories, label="Select Category")
             subcategory = gr.Dropdown(choices=[""], label="Select SubCategory", interactive=False)
         ignored_fields = gr.CheckboxGroup(
-            choices=sorted(available_fields),
-            value=list(DEFAULT_IGNORED_FIELDS & set(available_fields)),
-            label="Fields to ignore"
-        )
+             choices=sorted(available_fields),
+             value=list(DEFAULT_IGNORED_FIELDS & set(available_fields)),
+             label="Fields to ignore"
+         )
         submit_btn = gr.Button("Search")
         output_df = gr.DataFrame()
         status_text = gr.Textbox(label="Status")
