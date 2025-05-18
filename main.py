@@ -64,14 +64,30 @@ def get_documents(category: Dict[str, Any], subcategory: Dict[str, Any]) -> List
         logging.error(f"MongoDB query failed: {e}")
     except Exception as e:
         logging.error(f"Unexpected error in get_documents: {e}")
-    
+
     return []
 
-def fetch_documents_ui(selected_category: str, selected_subcategory: str):
-    return get_documents(
-        {"listCategory": selected_category},
-        {"listSubCategory": selected_subcategory}
-    )
+# def fetch_documents_ui(selected_category: str, selected_subcategory: str):
+#     return get_documents(
+#         {"listCategory": selected_category},
+#         {"listSubCategory": selected_subcategory}
+#     )
+
+
+def get_document_fields(category:str, subcategory:str) -> Dict[str, List[Any]]:
+    documents = get_documents({"listCategory": category}, {"listSubCategory":subcategory})
+    if not documents:
+        return {}
+    
+    field_values: Dict[str, set] = {}
+    for doc in documents:
+        for key, value in doc.items():
+            if key == "_id":
+                continue
+            field_values.setdefault(key, set()).add(value)
+    return {key: sorted(values) for key, values in field_values.items()} #use this returns to build dynamic dropdowns from keys and choices from it's values 
+
+
 
 def create_interface():
     with gr.Blocks(css="footer{display:none !important}", title="MedicalHunt Neet Data Explorer 2024 less death") as demo:
@@ -79,7 +95,8 @@ def create_interface():
         with gr.Row(variant="compact"):
             category = gr.Dropdown(choices=get_distinct_values('listCategory', criteria=None), label="Select Category")
             sub_category = gr.Dropdown(choices=[], label="Select Sub-Category")
-            output = gr.JSON(label="Matching Documents")
+            output_distinct_key_value_pairs = gr.JSON(label="Matching Documents") #remove later
+            distinct_key_value_pairs = gr.State()
             
             
 
@@ -89,11 +106,17 @@ def create_interface():
             outputs=sub_category
         )
 
-        sub_category.change(
-            fn=fetch_documents_ui,
-            inputs=[category, sub_category],
-            outputs=output
+        # sub_category.change(
+        #     fn=fetch_documents_ui,
+        #     inputs=[category, sub_category],
+        #     outputs=output
 
+        # )
+
+        sub_category.change(
+            fn=get_document_fields,
+            inputs=[category, sub_category],
+            outputs=[output_distinct_key_value_pairs, distinct_key_value_pairs]
         )
 
     return demo
@@ -101,3 +124,10 @@ def create_interface():
 if __name__ == "__main__":
     app = create_interface()
     app.launch()
+
+
+# function.change(
+#     fn=update_subcategories,         # function to run when value changes
+#     inputs=category,                 # input to the function: current value of `category`
+#     outputs=sub_category             # output from the function updates the `sub_category` dropdown
+# )
